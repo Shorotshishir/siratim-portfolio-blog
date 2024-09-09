@@ -143,6 +143,11 @@ table {
   max-width: fit-content;
   overflow-x: auto;
   white-space: nowrap;
+  border: 1px solid;
+}
+th, td {
+  border: 2px solid;
+  padding: 10px;
 }
 
 .title {
