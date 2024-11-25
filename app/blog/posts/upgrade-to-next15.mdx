@@ -1,0 +1,23 @@
+---
+title: 'Upgrading NextJS 14 Application to NextJS 15'
+publishedAt: '2024-11-25'
+summary: This blog post talks about how nextjs 14 application was upgraded to nextjs 15
+---
+
+I started this blog a few months back with NextJS 14. Recently I saw that NextJS 15 is available to use.
+
+So, I wanted to give it a try ! I upgraded this blog from NextJS 14 to 15.
+
+I am Using `pnpm` for this project, so I used this below command to upgrade my project.
+I am running this on a linux pc, and I had `pnpm` installed ahead of time.
+
+```bash
+pnpm dlx @next/codemod@canary upgrade latest
+```
+
+This asked me what i wanted to upgrade, I stuck with the default choices.
+I only ignored some deployment related questions as it did not relate to my project.
+
+
+The Upgrade went smoothly without a hitch. It reminded me of the time I had to upgrade some of my dotnet project from `dotnet 6` to `dotnet 8` using the `upgrade-assistant`.
+

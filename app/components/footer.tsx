@@ -1,3 +1,5 @@
+import packageJson from "package.json"; // Import your package.json file
+
 function ArrowIcon() {
   return (
     <svg
@@ -55,6 +57,7 @@ export default function Footer() {
       </ul>
       <p className="mt-8 text-neutral-600 dark:text-neutral-300">
         © {new Date().getFullYear()} MIT Licensed
+        {packageJson.dependencies.next}
       </p>
     </footer>
   );
