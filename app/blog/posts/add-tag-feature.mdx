@@ -1,0 +1,121 @@
+---
+title: 'Adding tag features to the blog'
+publishedAt: '2025-01-27'
+summary: This blog post talks about how post tagging is implemented in this blog site
+tags: ['nextjs', 'tag']
+---
+
+I wanted to add tagging features in my blog. The template that I used didn't have that, so I thought I would add it myself. And through some digging and with some help from `Claude 3 Sonnet (free plan)` the result is here. 
+
+### Add Tags in mdx Metadata
+As the posts uses `mdx` files and I can use `Metadata` I would add tags in the posts Metadata.
+
+```raw
+...
+tags : ['tag1', 'tag2', 'tag3']
+...
+```
+Next is to Update the `Metadata` definition.
+
+### Updating Metadata definition
+As tags will be written in posts as strings and there can be multiple strings, Metadata needs to have property tags of type `string []`.
+```ts
+ type Metadata = {
+  ...
+  tags?: string[]; // Add tags array
+  ...
+};
+```
+
+### Parsing the tags data
+Lets parse the metadata from the the mdx file. As this will come as a string array, lets parse it this way.
+```ts
+let [key, ...valueArr] = line.split(": ");
+let value: string | string[] = valueArr.join(": ").trim();
+// Parse arrays that are in format tags: ['tag1', 'tag2']
+if (value.startsWith("[") && value.endsWith("]")) {
+    value = value
+    .slice(1, -1)
+    .split(",")
+    .map((s) => s.trim().replace(/^['"](.*)['"]$/, "$1"));
+} else {
+    value = value.replace(/^['"](.*)['"]$/, "$1");
+}
+metadata[key.trim()] = value;
+```
+### Showing the Tag in the posts page
+I want to show the tags under the post's publish date. Also make those tags clickable.
+```tsx
+<div className="flex flex-col gap-2 mt-2 mb-8">
+<p className="text-sm text-neutral-600 dark:text-neutral-400">
+    {formatDate(post.metadata.publishedAt)}
+</p>
+{post.metadata.tags && Array.isArray(post.metadata.tags) && (
+    <div className="flex gap-2">
+    {post.metadata.tags.map((tag) => (
+        <TagLink key={tag} tag={tag} />
+    ))}
+    </div>
+)}
+</div>
+```
+Here is the tsx component of `TagLink`.
+```tsx
+function TagLink({ tag }: { tag: string }) {
+  return (
+    <Link
+      href={`/tags/${tag}`}
+      className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+    >
+      #{tag}
+    </Link>
+  );
+}
+```
+
+### Having a dynamic page for Tagged posts
+So clicking on a tag should gather all the posts with the same tag to be displayed in the same page. So I defined a Dynamic page for tags in the `app\tags\[tags]\page.tsx`
+
+```jsx
+// claude to the rescue
+export async function generateStaticParams() {
+  const posts = getBlogPosts();
+  const tags = new Set<string>();
+
+  posts.forEach((post) => {
+    post.metadata.tags?.forEach((tag) => tags.add(tag));
+  });
+
+  return Array.from(tags).map((tag) => ({
+    tag: tag,
+  }));
+}
+
+export function generateMetadata({ params }) {
+  return {
+    title: `Posts tagged with "${params.tag}"`,
+    description: `All blog posts tagged with "${params.tag}"`,
+  };
+}
+
+export default function TagPage({ params }) {
+  const posts = getBlogPosts().filter((post) =>
+    post.metadata.tags?.includes(params.tag)
+  );
+
+  if (posts.length === 0) {
+    notFound();
+  }
+
+  return (
+    <section>
+      <h1 className="font-semibold text-2xl mb-8 tracking-tighter">
+        Posts tagged with "{params.tag}"
+      </h1>
+      <BlogPosts filterByTag={params.tag} />
+    </section>
+  );
+}
+```
+
+And yes ! end of all this I have a blog that supports tags !
