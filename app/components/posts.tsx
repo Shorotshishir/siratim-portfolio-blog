@@ -1,8 +1,29 @@
 import Link from "next/link";
 import { formatDate, getBlogPosts } from "app/blog/utils";
 
-export function BlogPosts() {
+type BlogPostsProps = {
+  filterByTag?: string;
+};
+
+function TagLink({ tag }: { tag: string }) {
+  return (
+    <Link
+      href={`/tags/${tag}`}
+      className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+    >
+      #{tag}
+    </Link>
+  );
+}
+
+export function BlogPosts({ filterByTag }: BlogPostsProps) {
   let allBlogs = getBlogPosts();
+
+  if (filterByTag) {
+    allBlogs = allBlogs.filter((post) =>
+      post.metadata.tags?.includes(filterByTag)
+    );
+  }
 
   return (
     <div>
@@ -25,9 +46,18 @@ export function BlogPosts() {
               <p className="text-neutral-600 dark:text-neutral-400 w-[100px] tabular-nums">
                 {formatDate(post.metadata.publishedAt, false)}
               </p>
-              <p className="text-neutral-900 dark:text-neutral-100 tracking-tight">
-                {post.metadata.title}
-              </p>
+              <div>
+                <p className="text-neutral-900 dark:text-neutral-100 tracking-tight">
+                  {post.metadata.title}
+                </p>
+                {post.metadata.tags && Array.isArray(post.metadata.tags) && (
+                  <div className="flex gap-2 mt-1">
+                    {post.metadata.tags.map((tag) => (
+                      <TagLink key={tag} tag={tag} />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </Link>
         ))}
