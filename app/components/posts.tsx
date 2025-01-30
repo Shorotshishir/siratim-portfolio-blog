@@ -1,20 +1,10 @@
 import Link from "next/link";
 import { formatDate, getBlogPosts } from "app/blog/utils";
+import TagLink from "./tag";
 
 type BlogPostsProps = {
   filterByTag?: string;
 };
-
-function TagLink({ tag }: { tag: string }) {
-  return (
-    <Link
-      href={`/tags/${tag}`}
-      className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
-    >
-      #{tag}
-    </Link>
-  );
-}
 
 export function BlogPosts({ filterByTag }: BlogPostsProps) {
   let allBlogs = getBlogPosts();

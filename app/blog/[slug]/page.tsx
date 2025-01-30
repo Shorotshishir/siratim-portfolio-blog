@@ -3,6 +3,7 @@ import { CustomMDX } from "app/components/mdx";
 import { formatDate, getBlogPosts } from "app/blog/utils";
 import { baseUrl } from "app/sitemap";
 import Link from "next/link";
+import TagLink from "app/components/tag";
 
 export async function generateStaticParams() {
   let posts = getBlogPosts();
@@ -50,17 +51,6 @@ export function generateMetadata({ params }) {
       images: [ogImage],
     },
   };
-}
-
-function TagLink({ tag }: { tag: string }) {
-  return (
-    <Link
-      href={`/tags/${tag}`}
-      className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
-    >
-      #{tag}
-    </Link>
-  );
 }
 
 export default function Blog({ params }) {
