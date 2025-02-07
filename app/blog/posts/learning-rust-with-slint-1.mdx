@@ -1,0 +1,27 @@
+---
+title: 'Creating a Guessing Game in Rust with Ui'
+publishedAt: '2025-02-07'
+summary: This blog post talks about how to create a guessing game in Rust using the slint ui library
+tags: ['rust', 'programming', 'slint', 'ui']
+---
+
+I am learning `rust` using the official Rust Programming Language Book. 
+In [chapter 2](https://doc.rust-lang.org/book/ch02-00-guessing-game-tutorial.html) it talks about creating a guessing game. It is a terminal game.
+I wanted to have a simple ui to the game. So I searched for some and found [Slint](https://slint.dev/). The site looked cool ! I got interested.
+The syntax looked similar to the `react` library that I am somewhat familiar with, so I thought I would give it a try.
+
+Here is the Github Project [Guess Me](https://github.com/Shorotshishir/GuessMe). 
+
+
+`Slint` is quite straight forward to use. As this game is really simple in logic and doesn't have a state management requirement, I thought it would be a good fit.
+It took some extra work to get things working for the first time.
+
+Such As:
+1. A build script `build.rs` is needed to make sure the slint files are usable in the rust file. 
+2. The intellisense worked after the first build. reminded me of Avalonia UI in dotnet.
+3. The first build takes quite a while. 
+4. In windows a release build always opens a console window. According to the documentation of slint this is a Windows specific thing.
+    - Here is the official link about this topic how to resolve the issue. [Handle the Console Window](https://docs.slint.dev/latest/docs/slint/guide/platforms/desktop/)
+    - Issue can be found in the Github repo [#3235](https://github.com/slint-ui/slint/issues/3235)
+
+The youtube channel of [slint](https://www.youtube.com/@Slint-UI) is getting more updates recently, which is always amazing.
