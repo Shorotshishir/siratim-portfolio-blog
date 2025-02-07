@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 ::selection {
   background-color: #47a3f3;
@@ -20,7 +20,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --sh-class: #4c97f8;
-    --sh-identifier: white;
+    --sh-identifier: #4c97f8;
     --sh-keyword: #f47067;
     --sh-string: #0fa295;
   }
@@ -48,12 +48,12 @@ html {
 }
 
 .prose a {
-  @apply underline transition-all decoration-neutral-400 dark:decoration-neutral-600 underline-offset-2 decoration-[0.1em];
+  @apply underline transition-all decoration-red-400 dark:decoration-red-600 underline-offset-2 decoration-[0.1em];
 }
 
 .prose .anchor:after {
-  @apply text-neutral-300 dark:text-neutral-700;
-  content: '#';
+  @apply text-red-300 dark:text-red-700;
+  content: "#";
 }
 
 .prose *:hover > .anchor {
@@ -131,8 +131,8 @@ pre {
 }
 
 /* Remove Safari input shadow on mobile */
-input[type='text'],
-input[type='email'] {
+input[type="text"],
+input[type="email"] {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -145,7 +145,8 @@ table {
   white-space: nowrap;
   border: 1px solid;
 }
-th, td {
+th,
+td {
   border: 2px solid;
   padding: 10px;
 }
