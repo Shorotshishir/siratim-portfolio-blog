@@ -2,8 +2,22 @@ import { notFound } from "next/navigation";
 import { CustomMDX } from "app/components/mdx";
 import { formatDate, getBlogPosts } from "app/blog/utils";
 import { baseUrl } from "app/sitemap";
-import Link from "next/link";
 import TagLink from "app/components/tag";
+
+// Reading time calculation per blog post
+const getReadTime = (content : string, wordCount:number = 200): string => {
+  let trimmed = content.trim();
+  if (trimmed.length < 0){
+    return "Empty";
+  }
+  let words = trimmed.split(/\s+/);
+  let time = words.length / wordCount;
+  if (time < 1){
+    return "less than a minute read"
+  }
+  let roundedTime = Math.ceil(time) ;
+  return `${roundedTime} minute${roundedTime > 1 ? "s" : ""} read`;
+};
 
 export async function generateStaticParams() {
   let posts = getBlogPosts();
@@ -89,7 +103,7 @@ export default function Blog({ params }) {
       </h1>
       <div className="flex flex-col gap-2 mt-2 mb-8">
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          {formatDate(post.metadata.publishedAt)}
+          🗓️ {formatDate(post.metadata.publishedAt)} ⌛ {getReadTime(post.content)}
         </p>
         {post.metadata.tags && Array.isArray(post.metadata.tags) && (
           <div className="flex gap-2">
