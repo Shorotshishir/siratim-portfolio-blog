@@ -1,0 +1,43 @@
+---
+title: 'Publish My First Nuget Package'
+publishedAt: '2025-05-10'
+summary: 'This blog post talks about my first nuget package submission'
+tags: ['nuget', 'package', 'publish', 'bangla.net', 'personal-project']
+---
+
+**tldr;**  
+I published my first nuget package [Bangla.net](https://www.nuget.org/packages/Bangla.net/#readme-body-tab).
+Its a library that converts Georgian calendar to Bangla calendar and Roman 
+Numerics to Bangla numerics.
+
+```csharp
+using bng;
+var banglaWord = Number.ToBanglaWord(10011111002548976);
+// output : এক শত কোটি এগারো লক্ষ এগারো হাজার এক শত কোটি পঁচিশ লক্ষ আটচল্লিশ হাজার নয় শত ছিয়াত্তর
+var banglaWord = Number.ToBanglaWord("10011111002548976");
+// output : এক শত কোটি এগারো লক্ষ এগারো হাজার এক শত কোটি পঁচিশ লক্ষ আটচল্লিশ হাজার নয় শত ছিয়াত্তর
+var banglaNum = Number.ToBanglaNumber(10011111002548976);
+// output : ১০০১১১১১০০২৫৪৮৯৭৬
+var today = Calendar.GetBengaliDate();
+Console.WriteLine(today.ToString());
+// output : ১৬ (ষোলোই) বৈশাখ, ১৪৩২ বঙ্গাব্দ ; মঙ্গলবার, গ্রীষ্ম কাল ।
+var thisDay = Calendar.GetBengaliDate(15, 8, 1995);
+Console.WriteLine(thisDay.ToString());
+// output : ৩১ (একত্রিশে) শ্রাবণ, ১৪০২ বঙ্গাব্দ ; মঙ্গলবার, বর্ষা কাল ।
+var maxDate = Calendar.GetBengaliDate(DateTime.MaxValue);
+Console.WriteLine(maxDate.ToString());
+// output : ১৭ (সতেরোই) পৌষ, ৯৪০৬ বঙ্গাব্দ ; শুক্রবার, শীত কাল ।
+```
+---
+I recently added a feature on a python library, that does calendar data conversion 
+from Georgian System to Bangla (Bengali for the rest of the world) System.
+It is my native language. 
+
+I found out there is not enough library to support my language in dotnet eco system.
+So, I was thinking of making it happen. I created a nuget package that converts english 
+number to bangla number and Georgian Calendar date to Bangla Calendar date.
+
+I went through the official nuget package creation [from here](https://learn.microsoft.com/en-us/nuget/quickstart/create-and-publish-a-package-using-visual-studio?tabs=netcore-cli#create-a-class-library-project)
+
+
+Nuget Package Link : [Bangla.net](https://www.nuget.org/packages/Bangla.net/#readme-body-tab)
