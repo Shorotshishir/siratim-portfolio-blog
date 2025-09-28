@@ -1,0 +1,101 @@
+---
+title: 'Getting to Understand the Zig package manager(0.15.1)'
+publishedAt: '2025-09-28'
+summary: ''
+tags: ['zig', 'build', 'package-manager']
+---
+
+Zig has a way interesting of integrating `packages` to a project. And the project can keep track of what has been pulled in for the project.
+Zig provides a `fetch` command. This command can download pieces of zig code using github url.
+But you have to manually add reference of it to your build system to be used properly.
+
+### tl;dr;
+So, Here is the short description of how to add packages in a project in sequence.
+
+1. use `zig fetch --save` to import the package to the project.
+2. update `build.zig` to define the dependency, get and define names of modules of the dependencies and finaly link it to the executable
+
+here is sequence template of updating `build.zig` file
+```zig
+// build.zig already has build function , our modification has to be inside the build function 
+pub fn build(b: *std.Build) void {
+    // define the dependencies
+    const new_package_dep = b.dependency("package-name", .{
+        .target = target,
+        .optimize = optimize,
+    });
+
+    // Get the module from the dependency
+    const new_package = new_package_dep.module("module-name");
+    // add your c library artifact here
+    
+    /// somewhere here the exe is already defined 
+    
+    // Add it to your executable
+    exe.root_module.addImport("package-name", new_package);
+    // link your c library here as artifact
+}
+```
+
+
+### Getting into details with example : `raylib`
+
+Lets try to integrate `raylib` plugin for your project. It is written in `C` language and we are mporting it inside zig project.
+Inside your projects command line you need to type this 
+```powershell
+zig fetch --save git+https://github.com/raylib-zig/raylib-zig#devel
+```
+
+this command downloads the package in to the local cache. Then it updates the build.zig.zon like this.
+
+```json
+.dependencies = .{
+    .raylib_zig = .{
+        .url = "git+https://github.com/raylib-zig/raylib-zig?ref=devel#<a-generated-hash-data>",
+        .hash = "<a-generated-hash-data>",
+    },
+},
+```
+
+till this point this looks same as any other package manager. Think of npm for comapriason
+
+- `npm install <package-name>` becomes `zig fetch --save <package-url>`
+- for npm `package.json` gets updated and `package.json.lock` also gets updated with unique hash values. In zig, the `build.zig.zon` gets updated with the package hash.
+
+Fine and dandy right ! Not quite. Here comes the interesting part.
+
+this package that you installed needs to be manually linked with your build system. This is where you get to dig into the build.zig file.
+You need to manually add it as the dependency of the project like this
+
+```zig
+// defining the dependency
+const raylib_dep = b.dependency("raylib_zig", .{
+    .target = target,
+    .optimize = optimize,
+});
+
+// define importable modules for the project to be utilized
+// This is where modules from the dependency are accessed
+// main raylib module
+const raylib = raylib_dep.module("raylib"); 
+// raygui module
+const raygui = raylib_dep.module("raygui"); 
+
+// Define the artifact to be linked to with the executable
+// raylib C library
+const raylib_artifact = raylib_dep.artifact("raylib"); 
+```
+
+then link the artifact to the exe that is already defined in the `build.zig` file. 
+
+```zig
+// This is where the modules are added to your executable
+exe.linkLibrary(raylib_artifact); // specific to linking c based libraries
+exe.root_module.addImport("raylib", raylib); // common for zig libraries
+exe.root_module.addImport("raygui", raygui); // common for zig libraries
+``` 
+
+Now, I think we are ready to build. give it a try. If it doe not build re check the codes added in the zig.build file.
+
+
+Hope this helps !!!
