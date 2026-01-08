@@ -1,0 +1,90 @@
+---
+title: 'gig : Write this program to learn a new Programming Language'
+publishedAt: '2026-01-08'
+summary: 'Implement gig, a gitignore generator, to brush-up fundamental programming language concepts while transitioning to a new language.'
+tags: ['programming', 'language', 'learning', 'gig']
+---
+
+Tutorials teach you syntax, not how to *find a problem and solve* like a developer.
+
+`gig` helps you cross the boundary of tutorial hell. 
+It's a project that you can build in any language you're learning. 
+It nudges you to find familiarities between languages while solving a problem that will result in a tool that you can use for yourself. 
+
+## What is gig?
+
+There are many gitignore tools in github already, like [shihanng/gig](https://github.com/shihanng/gig) for example. We are trying to write our own `gig` !
+`gig` generates `.gitignore` files for different programming languages and frameworks. Run `gig python`, get a Python gitignore. Run `gig cpp`, get a C++ one. That's the entire feature.
+
+It's simple enough idea to understand in an afternoon, yet challenging enough to make you think and resolve the challenges that comes with a new language.
+
+The idea: rewrite a git ignore generator program in whatever language you're trying to learn.
+
+
+## What You'll Actually Learn
+
+_Pre learning_ 😉 : _Learn how to fork the `github/gitignore` repo and how to find the correct path to the archive of the repository._
+
+Here's what happens when you build gig—no matter what language you choose:
+
+### Command-Line Argument Parsing
+
+Your program needs to accept input and understand what the user wants. Parse `gig python`, validate it, respond accordingly. Every language has a different way to do this. You'll discover how your language does it.
+
+### Data Structures
+
+"python", "py", they all need to map to the same template. Build a dictionary or map. Handle aliases. You'll learn how your language organizes and looks up data.
+
+### HTTP Requests
+
+When a user runs your command, you hit a GitHub repo's archive link, download a tar.gz file, and extract the right gitignore. This teaches you network requests, error handling, and working with external APIs.
+
+### File System Operations
+
+You need to cache downloads in `~/.gig`, extract tar.gz archives, find files inside them, and write the result to disk. Path handling, directory creation, file I/O, decompression. Every language approaches this differently - and you'll learn how yours does it.
+
+### User Experience Design
+
+Your `help` command list the useful commands. Don't skip this. You'll learn that good output formatting, clear error messages, and helpful documentation matter.
+
+### Concurrency [Try it but Don't Stay Stuck on it ]
+
+Network calls shouldn't freeze your program. Whether your language uses async/await, callbacks, channels, or threads, you'll learn how it handles concurrency. 
+
+## You Finish With a Real Tool
+
+A simple finished project. A program you can actually use.
+
+When you're done, you can run `gig python` on any machine with your language installed, and it works. You can use it. Other people can use it.
+
+Plus:  
+
+- You know where to find libraries in that language's ecosystem
+- You understand how to build and distribute binaries
+- You have a portfolio piece that proves you can actually code
+- After building it in 2-3 languages, you'll have real opinions about which language is better for different problems
+
+## How to Start
+
+1. Pick a language you want to learn (Go, Rust, Python, Node.js—doesn't matter)
+2. Start with the basics: CLI argument parsing and the language/gitignore mapping
+3. Get that working first
+4. Add the HTTP layer to fetch gitignore archive 
+5. Add file handling to cache and extract
+6. Polish the help output and error messages
+
+The whole thing should take 1-2.5 weeks depending on your pace. It's not overwhelming, just need to have the patience to break the language barrier.
+The goal is to get it working first, by yourself reading through whatever content you find about the language.
+Think of Each step as Milestones.
+
+## Why This Works
+
+Tutorials are passive. You read and copy. This is active. You take steps to reach a goal, for each step you take decisions that bring challenges to solve. You think, search, and solve. Each solved problem brings you close to the goal.
+
+You also finish with something real. Something you can actually use on your daily programming!
+
+## Try It
+
+My C# version is on [GitHub](https://github.com/Shorotshishir/gig). Fork it. Read the code. Understand how it works. Understand what you may need in your language. Write the code the way you are comfortable with !
+
+Give it a shot. You might surprise yourself with what you build.
