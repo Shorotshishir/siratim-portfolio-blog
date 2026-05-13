@@ -1,22 +1,25 @@
-import { baseUrl } from "app/sitemap";
+import { baseUrl, siteConfig } from "app/config";
 import { getBlogPosts } from "app/blog/utils";
 
+function escapeXml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
 export async function GET() {
-  let allBlogs = await getBlogPosts();
+  const allBlogs = getBlogPosts();
 
   const itemsXml = allBlogs
-    .sort((a, b) => {
-      if (new Date(a.metadata.publishedAt) > new Date(b.metadata.publishedAt)) {
-        return -1;
-      }
-      return 1;
-    })
     .map(
       (post) =>
         `<item>
-          <title>${post.metadata.title}</title>
+          <title>${escapeXml(post.metadata.title)}</title>
           <link>${baseUrl}/blog/${post.slug}</link>
-          <description>${post.metadata.summary || ""}</description>
+          <description>${escapeXml(post.metadata.summary)}</description>
           <pubDate>${new Date(
             post.metadata.publishedAt
           ).toUTCString()}</pubDate>
@@ -27,9 +30,9 @@ export async function GET() {
   const rssFeed = `<?xml version="1.0" encoding="UTF-8" ?>
   <rss version="2.0">
     <channel>
-        <title>My Portfolio</title>
+        <title>${escapeXml(siteConfig.name)}</title>
         <link>${baseUrl}</link>
-        <description>This is my portfolio RSS feed</description>
+        <description>${escapeXml(siteConfig.description)}</description>
         ${itemsXml}
     </channel>
   </rss>`;

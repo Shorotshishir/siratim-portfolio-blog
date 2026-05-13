@@ -4,10 +4,10 @@ import { usePathname } from "next/navigation";
 
 const navItems = {
   "/": {
-    name: "home",
+    name: "Home",
   },
   "/blog": {
-    name: "blog",
+    name: "Blog",
   },
 };
 

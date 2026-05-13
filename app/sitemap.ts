@@ -1,17 +1,21 @@
-import { getBlogPosts } from "app/blog/utils";
-
-export const baseUrl = "https://sm-siratim.net";
+import { getAllTags, getBlogPosts } from "app/blog/utils";
+import { baseUrl } from "app/config";
 
 export default async function sitemap() {
-  let blogs = getBlogPosts().map((post) => ({
+  const blogs = getBlogPosts().map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,
     lastModified: post.metadata.publishedAt,
   }));
 
-  let routes = ["", "/blog"].map((route) => ({
+  const tags = Array.from(getAllTags().keys()).map((tag) => ({
+    url: `${baseUrl}/blog/tags/${tag}`,
+    lastModified: new Date().toISOString().split("T")[0],
+  }));
+
+  const routes = ["", "/blog"].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date().toISOString().split("T")[0],
   }));
 
-  return [...routes, ...blogs];
+  return [...routes, ...blogs, ...tags];
 }

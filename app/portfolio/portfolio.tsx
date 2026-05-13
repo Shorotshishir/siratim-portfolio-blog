@@ -3,7 +3,7 @@ import { CustomMDX } from "app/components/mdx";
 import React from "react";
 
 export default function Portfolio() {
-  let allPortfolio = getPortfolio();
+  const allPortfolio = getPortfolio();
   return (
     <>
       <h1 className="mb-8 text-2xl font-semibold tracking-tighter">

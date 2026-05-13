@@ -1,46 +1,57 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { CustomMDX } from "app/components/mdx";
 import { formatDate, getBlogPosts } from "app/blog/utils";
-import { baseUrl } from "app/sitemap";
+import { baseUrl, siteConfig } from "app/config";
 import TagLink from "app/components/tag";
 
-// Reading time calculation per blog post
-const getReadTime = (content : string, wordCount:number = 200): string => {
-  let trimmed = content.trim();
-  if (trimmed.length < 0){
+type BlogPageProps = {
+  params: Promise<{
+    slug: string;
+  }>;
+};
+
+const getReadTime = (content: string, wordCount = 200): string => {
+  const trimmed = content.trim();
+  if (trimmed.length === 0) {
     return "Empty";
   }
-  let words = trimmed.split(/\s+/);
-  let time = words.length / wordCount;
-  if (time < 1){
-    return "less than a minute read"
+
+  const words = trimmed.split(/\s+/);
+  const time = words.length / wordCount;
+  if (time < 1) {
+    return "less than a minute read";
   }
-  let roundedTime = Math.ceil(time) ;
+
+  const roundedTime = Math.ceil(time);
   return `${roundedTime} minute${roundedTime > 1 ? "s" : ""} read`;
 };
 
 export async function generateStaticParams() {
-  let posts = getBlogPosts();
+  const posts = getBlogPosts();
 
   return posts.map((post) => ({
     slug: post.slug,
   }));
 }
 
-export function generateMetadata({ params }) {
-  let post = getBlogPosts().find((post) => post.slug === params.slug);
+export async function generateMetadata({
+  params,
+}: BlogPageProps): Promise<Metadata | undefined> {
+  const { slug } = await params;
+  const post = getBlogPosts().find((post) => post.slug === slug);
   if (!post) {
     return;
   }
 
-  let {
+  const {
     title,
     publishedAt: publishedTime,
     summary: description,
     image,
   } = post.metadata;
-  let ogImage = image
-    ? image
+  const ogImage = image
+    ? `${baseUrl}${image}`
     : `${baseUrl}/og?title=${encodeURIComponent(title)}`;
 
   return {
@@ -67,8 +78,9 @@ export function generateMetadata({ params }) {
   };
 }
 
-export default function Blog({ params }) {
-  let post = getBlogPosts().find((post) => post.slug === params.slug);
+export default async function Blog({ params }: BlogPageProps) {
+  const { slug } = await params;
+  const post = getBlogPosts().find((post) => post.slug === slug);
 
   if (!post) {
     notFound();
@@ -89,11 +101,11 @@ export default function Blog({ params }) {
             description: post.metadata.summary,
             image: post.metadata.image
               ? `${baseUrl}${post.metadata.image}`
-              : `/og?title=${encodeURIComponent(post.metadata.title)}`,
+              : `${baseUrl}/og?title=${encodeURIComponent(post.metadata.title)}`,
             url: `${baseUrl}/blog/${post.slug}`,
             author: {
               "@type": "Person",
-              name: "My Portfolio",
+              name: siteConfig.author.name,
             },
           }),
         }}
@@ -103,10 +115,11 @@ export default function Blog({ params }) {
       </h1>
       <div className="flex flex-col gap-2 mt-2 mb-8">
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          🗓️ {formatDate(post.metadata.publishedAt)} ⌛ {getReadTime(post.content)}
+          Published {formatDate(post.metadata.publishedAt)} ·{" "}
+          {getReadTime(post.content)}
         </p>
-        {post.metadata.tags && Array.isArray(post.metadata.tags) && (
-          <div className="flex gap-2">
+        {post.metadata.tags && (
+          <div className="flex flex-wrap gap-2">
             {post.metadata.tags.map((tag) => (
               <TagLink key={tag} tag={tag} />
             ))}

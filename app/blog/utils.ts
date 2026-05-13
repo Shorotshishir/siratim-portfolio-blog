@@ -1,54 +1,53 @@
 import fs from "fs";
 import path from "path";
+import matter from "gray-matter";
+import { z } from "zod";
 
-type Metadata = {
-  title: string;
-  publishedAt: string;
-  summary: string;
-  image?: string;
-  tags?: string[]; // Add tags array
+const metadataSchema = z.object({
+  title: z.string().min(1),
+  publishedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  summary: z.string().min(1),
+  image: z.string().optional(),
+  tags: z.array(z.string().min(1)).optional(),
+});
+
+export type Metadata = z.infer<typeof metadataSchema>;
+
+export type MDXEntry = {
+  metadata: Metadata;
+  slug: string;
+  content: string;
 };
 
-function parseFrontmatter(fileContent: string) {
-  let frontmatterRegex = /---\s*([\s\S]*?)\s*---/;
-  let match = frontmatterRegex.exec(fileContent);
-  let frontMatterBlock = match![1];
-  let content = fileContent.replace(frontmatterRegex, "").trim();
-  let frontMatterLines = frontMatterBlock.trim().split("\n");
-  let metadata: Partial<Metadata> = {};
+const blogPostsDirectory = path.join(process.cwd(), "app", "blog", "posts");
+const portfolioDirectory = path.join(process.cwd(), "app", "portfolio", "folio");
 
-  frontMatterLines.forEach((line) => {
-    let [key, ...valueArr] = line.split(": ");
-    let value: string | string[] = valueArr.join(": ").trim();
-    // Parse arrays that are in format tags: ['tag1', 'tag2']
-    if (value.startsWith("[") && value.endsWith("]")) {
-      value = value
-        .slice(1, -1)
-        .split(",")
-        .map((s) => s.trim().replace(/^['"](.*)['"]$/, "$1"));
-    } else {
-      value = value.replace(/^['"](.*)['"]$/, "$1"); // Remove quotes
-    }
-    metadata[key.trim()] = value;
-  });
-
-  return { metadata: metadata as Metadata, content };
-}
-
-function getMDXFiles(dir) {
+function getMDXFiles(dir: string) {
   return fs.readdirSync(dir).filter((file) => path.extname(file) === ".mdx");
 }
 
-function readMDXFile(filePath) {
-  let rawContent = fs.readFileSync(filePath, "utf-8");
-  return parseFrontmatter(rawContent);
+function readMDXFile(filePath: string) {
+  const rawContent = fs.readFileSync(filePath, "utf-8");
+  const parsed = matter(rawContent);
+  const result = metadataSchema.safeParse(parsed.data);
+
+  if (!result.success) {
+    const relativePath = path.relative(process.cwd(), filePath);
+    throw new Error(
+      `Invalid MDX metadata in ${relativePath}: ${result.error.message}`
+    );
+  }
+
+  return {
+    metadata: result.data,
+    content: parsed.content.trim(),
+  };
 }
 
-function getMDXData(dir) {
-  let mdxFiles = getMDXFiles(dir);
-  return mdxFiles.map((file) => {
-    let { metadata, content } = readMDXFile(path.join(dir, file));
-    let slug = path.basename(file, path.extname(file));
+function getMDXData(dir: string): MDXEntry[] {
+  return getMDXFiles(dir).map((file) => {
+    const { metadata, content } = readMDXFile(path.join(dir, file));
+    const slug = path.basename(file, path.extname(file));
 
     return {
       metadata,
@@ -58,38 +57,47 @@ function getMDXData(dir) {
   });
 }
 
+export function sortPosts(posts: MDXEntry[]) {
+  return [...posts].sort(
+    (a, b) =>
+      new Date(b.metadata.publishedAt).getTime() -
+      new Date(a.metadata.publishedAt).getTime()
+  );
+}
+
 export function getBlogPosts() {
-  return getMDXData(path.join(process.cwd(), "app", "blog", "posts"));
+  return sortPosts(getMDXData(blogPostsDirectory));
 }
 
 export function getPortfolio() {
-  return getMDXData(path.join(process.cwd(), "app", "portfolio", "folio"));
+  return getMDXData(portfolioDirectory);
+}
+
+export function getTagSlug(tag: string) {
+  return encodeURIComponent(tag.trim().toLowerCase().replace(/\s+/g, "-"));
+}
+
+export function getAllTags() {
+  const tags = new Map<string, string>();
+
+  for (const post of getBlogPosts()) {
+    for (const tag of post.metadata.tags ?? []) {
+      tags.set(getTagSlug(tag), tag);
+    }
+  }
+
+  return tags;
+}
+
+export function getPostsByTagSlug(tagSlug: string) {
+  return getBlogPosts().filter((post) =>
+    post.metadata.tags?.some((tag) => getTagSlug(tag) === tagSlug)
+  );
 }
 
 export function formatDate(date: string, includeRelative = false) {
-  let currentDate = new Date();
-  if (!date.includes("T")) {
-    date = `${date}T00:00:00`;
-  }
-  let targetDate = new Date(date);
-
-  let yearsAgo = currentDate.getFullYear() - targetDate.getFullYear();
-  let monthsAgo = currentDate.getMonth() - targetDate.getMonth();
-  let daysAgo = currentDate.getDate() - targetDate.getDate();
-
-  let formattedDate = "";
-
-  if (yearsAgo > 0) {
-    formattedDate = `${yearsAgo}y ago`;
-  } else if (monthsAgo > 0) {
-    formattedDate = `${monthsAgo}mo ago`;
-  } else if (daysAgo > 0) {
-    formattedDate = `${daysAgo}d ago`;
-  } else {
-    formattedDate = "Today";
-  }
-
-  let fullDate = targetDate.toLocaleString("en-us", {
+  const targetDate = new Date(`${date}T00:00:00`);
+  const fullDate = targetDate.toLocaleString("en-US", {
     month: "long",
     day: "numeric",
     year: "numeric",
@@ -99,5 +107,22 @@ export function formatDate(date: string, includeRelative = false) {
     return fullDate;
   }
 
-  return `${fullDate} (${formattedDate})`;
+  const currentDate = new Date();
+  const yearsAgo = currentDate.getFullYear() - targetDate.getFullYear();
+  const monthsAgo = currentDate.getMonth() - targetDate.getMonth();
+  const daysAgo = currentDate.getDate() - targetDate.getDate();
+
+  if (yearsAgo > 0) {
+    return `${fullDate} (${yearsAgo}y ago)`;
+  }
+
+  if (monthsAgo > 0) {
+    return `${fullDate} (${monthsAgo}mo ago)`;
+  }
+
+  if (daysAgo > 0) {
+    return `${fullDate} (${daysAgo}d ago)`;
+  }
+
+  return `${fullDate} (Today)`;
 }

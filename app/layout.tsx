@@ -4,20 +4,20 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { Navbar } from "./components/nav";
 import Footer from "./components/footer";
-import { baseUrl } from "./sitemap";
+import { baseUrl, siteConfig } from "./config";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: "siratim-portfolio-blog",
-    template: "%s | siratim-portfolio-blog",
+    default: siteConfig.name,
+    template: `%s | ${siteConfig.shortName}`,
   },
-  description: "This is my portfolio.",
+  description: siteConfig.description,
   openGraph: {
-    title: "My Portfolio",
-    description: "This is my portfolio.",
+    title: siteConfig.name,
+    description: siteConfig.description,
     url: baseUrl,
-    siteName: "My Portfolio",
+    siteName: siteConfig.name,
     locale: "en_US",
     type: "website",
   },
@@ -34,7 +34,8 @@ export const metadata: Metadata = {
   },
 };
 
-const cx = (...classes) => classes.filter(Boolean).join(" ");
+const cx = (...classes: Array<string | false | null | undefined>) =>
+  classes.filter(Boolean).join(" ");
 
 export default function RootLayout({
   children,
