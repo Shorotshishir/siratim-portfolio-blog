@@ -5,6 +5,7 @@ import { GeistMono } from "geist/font/mono";
 import { Navbar } from "./components/nav";
 import Footer from "./components/footer";
 import { baseUrl, siteConfig } from "./config";
+import { ScrollProgress } from "./components/scroll-progress";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
@@ -52,6 +53,7 @@ export default function RootLayout({
       )}
     >
       <body className="antialiased max-w-xl mx-4 mt-8 lg:mx-auto">
+        <ScrollProgress />
         <main className="flex-auto min-w-0 mt-6 flex flex-col px-2 md:px-0">
           <Navbar />
           {children}
